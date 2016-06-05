@@ -1,7 +1,7 @@
-import json
-import random
-import time
-import sys
+from json import load, dumps
+from random import randint, seed
+from time import time
+import sys, os, signal
 
 ADD = 1
 STUDY = 2
@@ -9,17 +9,17 @@ IT_LANG = "it"
 EN_LANG = "en"
 
 def english(mode, lang):
-    random.seed(time.time())
+    seed(time())
 
     with open('words.json', 'r') as wordsfile:
-        jsondata = json.load(wordsfile)
+        jsondata = load(wordsfile)
         wordsfile.close()
         words = jsondata['words']
 
         if mode == STUDY:
-            print
+            print "\n === To EXIT type CTRL-C! ===\n"
             while words:
-                choice = random.randint(0,len(words)-1)
+                choice = randint(0,len(words)-1)
                 source = ", ".join(words[choice]['en'])
                 dest = ", ".join(words[choice]['it'])
                 if lang == IT_LANG:
@@ -43,7 +43,7 @@ def english(mode, lang):
                             words.append({'en':item[0], 'it':item[1]})
                         print "Updating dictionary...\nDo not close the program!\n"
                         with open('words.json', 'w+') as wordsfile:
-                            wordsfile.write(json.dumps(jsondata))
+                            wordsfile.write(dumps(jsondata))
                             wordsfile.close()
                             break
                         print "\nWriting file ERROR\n"
@@ -73,6 +73,10 @@ def english(mode, lang):
             print "Mode not recognized.\n"
     return
 
+def handler(signum, frame):
+    print '\n\nBye!\n'
+    sys.exit(0)
+
 
 if __name__ == "__main__":
     try:
@@ -98,5 +102,11 @@ if __name__ == "__main__":
     else:
         "Unknown option!"
         sys.exit(0)
+
+    # Set the signal handler and a 5-second alarm
+    signal.signal(signal.SIGTERM, handler)
+    signal.signal(signal.SIGINT, handler)
+    signal.signal(signal.SIGQUIT, handler)
+    signal.signal(signal.SIGABRT, handler)
 
     english(mode, lang)
