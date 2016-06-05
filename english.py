@@ -5,8 +5,10 @@ import sys
 
 ADD = 1
 STUDY = 2
+IT_LANG = "it"
+EN_LANG = "en"
 
-def english(mode):
+def english(mode, lang):
     random.seed(time.time())
 
     with open('words.json', 'r') as wordsfile:
@@ -20,6 +22,8 @@ def english(mode):
                 choice = random.randint(0,len(words)-1)
                 source = ", ".join(words[choice]['en'])
                 dest = ", ".join(words[choice]['it'])
+                if lang == IT_LANG:
+                    source, dest = dest, source
                 guess = raw_input("Translate ["+source+"]: ")
                 print "Translations ["+dest+"]\n"
                 del words[choice]
@@ -75,9 +79,16 @@ if __name__ == "__main__":
         mode = sys.argv[1]
     except:
         mode = "Error"
+    try:
+        lang = sys.argv[2]
+    except:
+        lang = EN_LANG
+
+    if lang not in [IT_LANG,EN_LANG]:
+        lang = EN_LANG
 
     if mode not in ["--add","--study"]:
-        print "\nEnglish Study:\n\n\t--help\t[Get this message]\n\t\n\t--add\t[Add a word]\n\t--study\t[Guess your words]\n"
+        print "\nEnglish Study:\n\n\t--help\t[Get this message]\n\t\n\t--add\t[Add a word]\n\t--study [en/it]\t[Study EN->IT, IT->EN]\n"
         sys.exit(0)
 
     if mode == "--add":
@@ -88,4 +99,4 @@ if __name__ == "__main__":
         "Unknown option!"
         sys.exit(0)
 
-    english(mode)
+    english(mode, lang)
